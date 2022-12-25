@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:project_1/test.dart';
+import 'dart:async';
+import 'dart:convert';
+
 
 class Textin extends StatelessWidget{
   var QuestionText = TextEditingController();
@@ -64,10 +68,10 @@ class Textin extends StatelessWidget{
 
               ),
               ElevatedButton(onPressed: (){
-                String uQues = QuestionText.text.toString();
-                String uAns = AnswerText.text.toString();
-                List<Flashcard>newl = [Flashcard(question: uQues, answer: uAns)];
-                 quesAnsList = newl + quesAnsList ;
+                final Question = QuestionText.text;
+                final Answer = AnswerText.text;
+
+                CreateCard(Question: Question, Answer: Answer);
                  print('done');
               }, child: Text('SUBMIT'))
             ],
@@ -77,4 +81,35 @@ class Textin extends StatelessWidget{
 
     );
   }
+  Future CreateCard({required String Question, required String Answer}) async{
+    final docCard = FirebaseFirestore.instance.collection('cards').doc();
+
+    final cards = Cardtext(
+      id: docCard.id,
+      Question: Question,
+      Answer: Answer,
+    );
+    final json = cards.toJson();
+
+    await docCard.set(json);
+  }
+}
+
+class Cardtext {
+  String id;
+  final String Question;
+  final String Answer;
+
+  Cardtext({
+    this.id = '',
+    required this.Question,
+    required this.Answer,
+});
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'Question' : Question,
+    'Answer' : Answer,
+  };
+
 }
